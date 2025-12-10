@@ -1,67 +1,158 @@
-<html>
-  <head>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compteur Animé GSAP</title>
+    
+    <!-- Importation de la librairie GSAP (moteur d'animation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
     <style>
-      #counter {
-        color: rgb(225, 0, 255);
-        margin: 50px;
-        text-align: center;
-        font-size: 50px;
-      }
+        /* Configuration de la police Inter par défaut et du fond */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #0d1117; /* Fond sombre */
+            color: #c9d1d9;
+            margin: 0; /* Important pour centrer sur toute la page */
+        }
 
-      .container {
-        display: flex;
-      }
+        /* ---------------------------------- */
+        /* 1. STYLE DU BOUTON ET DU COMPTEUR */
+        /* ---------------------------------- */
 
-      .btn {
-        border: 5px rgb(66, 61, 61) solid;
-        text-align: center;
-        width: 100px;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 100px;
-      }
+        .counter-display {
+            font-size: 6rem; /* Grand nombre */
+            font-weight: 800;
+            margin-bottom: 32px; /* Remplacement de 'margin-bottom: 2rem' (1rem = 16px) */
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        #increment-button {
+            padding: 24px 48px; /* Remplacement de 'padding: 1.5rem 3rem' */
+            font-size: 2rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #1f6feb, #58a6ff); /* Dégradé bleu */
+            color: white;
+            border: none;
+            border-radius: 12px; /* Remplacement de 'border-radius: 12px' */
+            cursor: pointer;
+            position: relative; /* CRUCIAL pour le positionnement absolu du '+1' */
+            box-shadow: 0 8px 20px rgba(88, 166, 255, 0.4);
+            transition: all 0.1s ease-in-out;
+            user-select: none;
+        }
+
+        #increment-button:active {
+            box-shadow: 0 4px 10px rgba(88, 166, 255, 0.6);
+            transform: translateY(2px);
+        }
+
+        /* ---------------------------------- */
+        /* 2. STYLE DU "+1" (PAS D'ANIMATION CSS, GSAP S'EN CHARGE) */
+        /* ---------------------------------- */
+
+        .plus-one-animation {
+            position: absolute;
+            /* Démarrage centré */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* Centrage parfait */
+
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffcc00; /* Jaune or éclatant */
+            text-shadow: 0 0 10px #ff0, 0 0 5px #ff4500;
+            pointer-events: none; /* Ne doit pas intercepter les clics */
+            opacity: 1;
+        }
+
+        /* ---------------------------------- */
+        /* 3. ANIMATION DU BOUTON (VIBRATION/SHAKE) */
+        /* ---------------------------------- */
+
+        .shake-button {
+            animation: shake 0.2s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.96); } 
+        }
     </style>
-  </head>
-  <body>
-    <div id="counter">
-      0
+</head>
+<body>
+
+    <div class="counter-display">
+        <span id="counter-value">0</span>
     </div>
-    <div class="container">
-      <div id="moins" class="btn">
-        -1
-      </div>
-      <div id="plus" class="btn">
+    
+    <button id="increment-button">
         +1
-      </div>
-    </div>
+    </button>
 
     <script>
-      let number = 0
-      const counterElement = document.getElementById('counter')
+        document.addEventListener('DOMContentLoaded', () => {
+            const counterValue = document.getElementById('counter-value');
+            const incrementButton = document.getElementById('increment-button');
+            let count = 0;
+            
+            const SHAKE_DURATION = 200; // Durée de l'animation CSS 'shake'
 
-      function updateCounter (value) {
-        counterElement.innerText = value
-      }
+            // Fonction gérant la logique du clic
+            function handleIncrement() {
+                // 1. Incrémentation du compteur
+                count++;
+                counterValue.textContent = count;
 
-      const plusElement = document.getElementById('plus')
-      const moinsElement = document.getElementById('moins')
+                // 2. Effet de vibration du bouton
+                incrementButton.classList.add('shake-button');
+                setTimeout(() => {
+                    incrementButton.classList.remove('shake-button');
+                }, SHAKE_DURATION);
 
-      function handleClickPlus () {
-        number++
-        updateCounter(number)
-      }
 
-      function handleClickMoins () {
-        if (number > 0) {
-          number--
-          updateCounter(number)
-        } else {
-          console.log('Déjà à 0')
-        }
-      }
+                // 3. Création de l'élément d'animation "+1"
+                const plusOne = document.createElement('span');
+                plusOne.textContent = '+1';
+                plusOne.classList.add('plus-one-animation');
+                
+                // 4. Ajout de l'élément au bouton
+                incrementButton.appendChild(plusOne);
 
-      plusElement.addEventListener('click', handleClickPlus)
-      moinsElement.addEventListener('click', handleClickMoins)
+                // 5. Animation GSAP
+                
+                // Définition de la portée aléatoire de la trajectoire
+                const maxDistanceY = -400; // Distance verticale max en % (vers le haut)
+                const maxDistanceX = 200;  // Distance horizontale max en % (gauche/droite)
+
+                gsap.to(plusOne, {
+                    duration: 2.8,
+                    rotation: gsap.utils.random(-180, 180),
+                    // Translation aléatoire, relative à la position de départ
+                    yPercent: gsap.utils.random(maxDistanceY, maxDistanceY * 1.5), // Monte jusqu'à 400%-600% au-dessus du départ
+                    xPercent: gsap.utils.random(-maxDistanceX, maxDistanceX), // Décalage X aléatoire
+                    
+                    scale: 0.3,      // Rétrécissement
+                    opacity: 0,      // Fondu
+                    filter: 'blur(3px)', // Effet de flou
+                    
+                    // Courbe d'animation légèrement explosive
+                    ease: "power3.out", 
+                    
+                    // Suppression de l'élément une fois l'animation terminée
+                    onComplete: () => plusOne.remove()
+                });
+            }
+
+            incrementButton.addEventListener('click', handleIncrement);
+        });
     </script>
-  </body>
+
+</body>
 </html>
