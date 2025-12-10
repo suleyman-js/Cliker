@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <style>
+      #counter {
+        color: rgb(118, 213, 74);
+        margin: 12px;
+        text-align: center;
+        font-size: 50px;
+      }
+
+      .container {
+        display: flex;
+      }
+
+      .btn {
+        border: 1px green solid;
+        text-align: center;
+        width: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="counter">
+      0
+    </div>
+    <div class="container">
+      <div id="moins" class="btn">
+        -1
+      </div>
+      <div id="plus" class="btn">
+        +1
+      </div>
+    </div>
+
+    <script>
+      let number = 0
+      const counterElement = document.getElementById('counter')
+
+      function updateCounter (value) {
+        counterElement.innerText = value
+      }
+
+      const plusElement = document.getElementById('plus')
+      const moinsElement = document.getElementById('moins')
+
+      function handleClickPlus () {
+        number++
+        updateCounter(number)
+      }
+
+      function handleClickMoins () {
+        if (number > 0) {
+          number--
+          updateCounter(number)
+        } else {
+          console.log('Déjà à 0')
+        }
+      }
+
+      plusElement.addEventListener('click', handleClickPlus)
+      moinsElement.addEventListener('click', handleClickMoins)
+    </script>
+  </body>
+</html>
